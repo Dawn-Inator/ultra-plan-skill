@@ -29,43 +29,6 @@ client.
 
 ## Install
 
-### For Claude Code
-
-```bash
-git clone --depth 1 https://github.com/Dawn-Inator/ultra-plan-skill.git /tmp/ultra-plan-skill
-mkdir -p ~/.claude/skills
-cp -R /tmp/ultra-plan-skill/claude ~/.claude/skills/ultra-plan
-rm -rf /tmp/ultra-plan-skill
-```
-
-Verify it loaded:
-
-```bash
-ls ~/.claude/skills/ultra-plan/SKILL.md && head -5 ~/.claude/skills/ultra-plan/SKILL.md
-```
-
-In a Claude Code session, type `/ultra-plan <your large feature>` to trigger.
-
-### For Codex
-
-```bash
-git clone --depth 1 https://github.com/Dawn-Inator/ultra-plan-skill.git /tmp/ultra-plan-skill
-mkdir -p ~/.codex/skills
-cp -R /tmp/ultra-plan-skill/codex ~/.codex/skills/ultra-plan
-rm -rf /tmp/ultra-plan-skill
-```
-
-Verify it loaded:
-
-```bash
-ls ~/.codex/skills/ultra-plan/SKILL.md && head -5 ~/.codex/skills/ultra-plan/SKILL.md
-```
-
-In a Codex session, ask "use ultra-plan to design ..." or include the trigger
-phrases above.
-
-### One-liner (either platform)
-
 ```bash
 # Claude Code
 curl -fsSL https://raw.githubusercontent.com/Dawn-Inator/ultra-plan-skill/main/scripts/install.sh | bash -s claude
@@ -74,25 +37,22 @@ curl -fsSL https://raw.githubusercontent.com/Dawn-Inator/ultra-plan-skill/main/s
 curl -fsSL https://raw.githubusercontent.com/Dawn-Inator/ultra-plan-skill/main/scripts/install.sh | bash -s codex
 ```
 
-*(Optional helper script — see [scripts/install.sh](scripts/install.sh) if you
-prefer to read before running.)*
+Then trigger it in your AI client with `/ultra-plan <your large feature>`.
 
----
+**Update**: re-run the same command. **Uninstall**: `rm -rf ~/.claude/skills/ultra-plan` (or `~/.codex/skills/ultra-plan`).
 
-## Update
-
-Re-run the install commands. They overwrite the destination folder with the
-latest `main`.
-
-## Uninstall
+<details>
+<summary>Prefer manual install?</summary>
 
 ```bash
-# Claude Code
-rm -rf ~/.claude/skills/ultra-plan
-
-# Codex
-rm -rf ~/.codex/skills/ultra-plan
+git clone --depth 1 https://github.com/Dawn-Inator/ultra-plan-skill.git /tmp/ups
+cp -R /tmp/ups/claude ~/.claude/skills/ultra-plan   # or codex → ~/.codex/skills/ultra-plan
+rm -rf /tmp/ups
 ```
+
+Or read [scripts/install.sh](scripts/install.sh) before running.
+
+</details>
 
 ---
 
