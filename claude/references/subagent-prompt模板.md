@@ -232,9 +232,35 @@
 
 ---
 
-## §5. AskUserQuestion 模板（Phase 0 + Phase 4）
+## §5. AskUserQuestion 模板（Phase 0）
 
-### §5.1 Phase 0: 范围澄清
+Claude Code 的 `AskUserQuestion` 一次最多 4 个问题。ultra-plan 固定分两次问：Phase 0.0 先单独锁定执行模式（1 题）；Phase 0.1 读项目配置；Phase 0.2 再一次锁定 feature / 输出位置 / 调研深度（3 题）。
+
+### §5.1 Phase 0.0: 执行模式
+
+```typescript
+{
+  questions: [
+    {
+      question: "写完所有 ultra-plan md 后怎么办？",
+      header: "执行模式",
+      multiSelect: false,
+      options: [
+        { label: "停下，我开新 AI 窗口让它读 00_总体规划.md (Recommended)",
+          description: "大型任务建议另起 session，避免主 session 上下文爆。开发者复制 00_总体规划.md 路径丢给新 Claude Code session 即可" },
+        { label: "直接执行（按 00_总体规划.md 派 subagent 跑）",
+          description: "适合规模偏小（5-7 个模块）且 token 预算充足的场景" },
+        { label: "写完先停，我自己看看 md 再说",
+          description: "写完文档清单后停下，等待用户看完再决定" }
+      ]
+    }
+  ]
+}
+```
+
+### §5.2 Phase 0.2: 范围澄清
+
+Phase 0.1 读完项目配置后，再问这 3 个问题。**不要把执行模式塞回这里。**
 
 ```typescript
 {
@@ -263,19 +289,6 @@
       ]
     },
     {
-      question: "写完文档后怎么办？",
-      header: "执行模式",
-      multiSelect: false,
-      options: [
-        { label: "停下，我开新 AI 窗口让它读 00_总体规划.md (Recommended)",
-          description: "大型任务建议另起 session，避免主 session 上下文爆。开发者复制 00_总体规划.md 路径丢给新 Claude Code session 即可" },
-        { label: "直接执行（按 00_总体规划.md 派 subagent 跑）",
-          description: "适合规模偏小（5-7 个模块）且 token 预算充足的场景" },
-        { label: "写完先停，我自己看看 md 再说",
-          description: "保守模式。写完后弹 Phase 4 决策窗" }
-      ]
-    },
-    {
       question: "Phase 1 要派几个调研 subagent？",
       header: "调研深度",
       multiSelect: false,
@@ -292,24 +305,10 @@
 }
 ```
 
-### §5.2 Phase 4: 执行决策
+### §5.3 Phase 4: 不再二次弹窗
 
-```typescript
-{
-  questions: [
-    {
-      question: "ultra-plan 文档已生成在 <output_dir>/，要直接执行吗？",
-      header: "执行决策",
-      multiSelect: false,
-      options: [
-        { label: "推荐：开新 AI 窗口让它读 00_总体规划.md",
-          description: "把 <output_dir>/00_总体规划.md 路径丢给新 Claude Code session，让它执行。当前 session 保持轻量" },
-        { label: "直接执行（在当前 session 派 subagent 跑）",
-          description: "进入 Phase 5。注意：长任务在主 session 跑会上下文爆" },
-        { label: "先停，我自己看看 md 再说",
-          description: "结束 ultra-plan，等待用户决策" }
-      ]
-    }
-  ]
-}
-```
+Phase 4 禁止再次调用 `AskUserQuestion` 问执行模式。写完所有 md 后，按 Phase 0.0 的「执行模式」答案直接分支：
+
+- **新窗口执行**：输出文档清单和新 session 首句提示，然后停下。
+- **直接执行**：进入 Phase 5。
+- **写完先停**：输出文档清单，然后停下。

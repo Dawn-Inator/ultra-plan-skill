@@ -30,7 +30,7 @@ ultra-plan 把需求**拆成一组结构化 md**：1 个 `00_总体规划.md`（
 
 ## Hard rules（不可违反）
 
-1. **NEVER** 跳过 Phase 0.0 执行模式弹窗 —— 这是**整个 ultra-plan 第一个动作**，必须在任何探测、调研、写作之前完成。禁止与 Phase 0.2 合并、禁止延后到 Phase 4。豁免唯一条件见 0.0。
+1. **NEVER** 跳过 Phase 0.0 执行模式弹窗 —— Claude Code 用 `AskUserQuestion` 作为**第一个用户交互动作**。禁止与 Phase 0.2 合并、禁止延后到 Phase 4。豁免唯一条件见 0.0。
 2. **NEVER** 在 Phase 1 派 subagent 写代码（subagent 只能调研、读、报告）
 3. **NEVER** 在 Phase 5 派多个并行 subagent 写**同一个模块**（会冲突）
 4. **NEVER** 自己造 CTO / PM / Marketing 这种"角色化"subagent —— 用视角 prompt 注入，不要预设人设
@@ -38,15 +38,15 @@ ultra-plan 把需求**拆成一组结构化 md**：1 个 `00_总体规划.md`（
 6. **ALWAYS** 在 subagent prompt 里列绝对路径并要求复述（≤150 字回执）
 7. **ALWAYS** Phase 4 按 Phase 0.0 执行模式答案直接流转 —— **不再二次弹窗确认**。Phase 4 的职责退化为「列文档清单 + 按 0.0 答案分支」
 8. **ALWAYS** 主 agent 串行写 `00_总体规划.md`，不能派 subagent 写它（要保证全局术语一致）
-9. **ALWAYS** Phase 0 之前先读项目级配置文件（见 [references/项目适配指南.md](references/项目适配指南.md)）
+9. **ALWAYS** 在 Phase 0.0 执行模式确认之后、Phase 0.2 范围澄清之前执行 Phase 0.1 项目级配置读取（见 [references/项目适配指南.md](references/项目适配指南.md)）
 
 ## Workflow
 
 ### Phase 0: 启动三件套（必须按 0.0 → 0.1 → 0.2 顺序）
 
-#### 0.0 执行模式弹窗（无条件必弹，第一动作）
+#### 0.0 执行模式弹窗（第一用户交互动作）
 
-**收到大型需求后，主 agent 的第一个动作就是这个弹窗**，禁止与 0.2 合并、禁止延后到 Phase 4。
+收到大型需求后，主 agent 的第一个**用户交互动作**就是这个弹窗，禁止与 0.2 合并、禁止延后到 Phase 4。Phase 0.1 项目探测（readonly 文件读）排在 0.0 答完之后、0.2 之前。
 
 立即弹 `AskUserQuestion`：
 
