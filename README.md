@@ -32,7 +32,7 @@ client.
 ### For Claude Code
 
 ```bash
-git clone --depth 1 https://github.com/dawninator/ultra-plan-skill.git /tmp/ultra-plan-skill
+git clone --depth 1 https://github.com/Dawn-Inator/ultra-plan-skill.git /tmp/ultra-plan-skill
 mkdir -p ~/.claude/skills
 cp -R /tmp/ultra-plan-skill/claude ~/.claude/skills/ultra-plan
 rm -rf /tmp/ultra-plan-skill
@@ -49,7 +49,7 @@ In a Claude Code session, type `/ultra-plan <your large feature>` to trigger.
 ### For Codex
 
 ```bash
-git clone --depth 1 https://github.com/dawninator/ultra-plan-skill.git /tmp/ultra-plan-skill
+git clone --depth 1 https://github.com/Dawn-Inator/ultra-plan-skill.git /tmp/ultra-plan-skill
 mkdir -p ~/.codex/skills
 cp -R /tmp/ultra-plan-skill/codex ~/.codex/skills/ultra-plan
 rm -rf /tmp/ultra-plan-skill
@@ -68,10 +68,10 @@ phrases above.
 
 ```bash
 # Claude Code
-curl -fsSL https://raw.githubusercontent.com/dawninator/ultra-plan-skill/main/scripts/install.sh | bash -s claude
+curl -fsSL https://raw.githubusercontent.com/Dawn-Inator/ultra-plan-skill/main/scripts/install.sh | bash -s claude
 
 # Codex
-curl -fsSL https://raw.githubusercontent.com/dawninator/ultra-plan-skill/main/scripts/install.sh | bash -s codex
+curl -fsSL https://raw.githubusercontent.com/Dawn-Inator/ultra-plan-skill/main/scripts/install.sh | bash -s codex
 ```
 
 *(Optional helper script — see [scripts/install.sh](scripts/install.sh) if you

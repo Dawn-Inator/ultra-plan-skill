@@ -11,7 +11,7 @@ esac
 TMP=$(mktemp -d)
 trap 'rm -rf "$TMP"' EXIT
 
-git clone --depth 1 https://github.com/dawninator/ultra-plan-skill.git "$TMP"
+git clone --depth 1 https://github.com/Dawn-Inator/ultra-plan-skill.git "$TMP"
 mkdir -p "$(dirname "$DEST")"
 rm -rf "$DEST"
 cp -R "$TMP/$SRC" "$DEST"
