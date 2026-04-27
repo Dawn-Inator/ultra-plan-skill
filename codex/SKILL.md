@@ -30,7 +30,7 @@ ultra-plan 把需求**拆成一组结构化 md**：1 个 `00_总体规划.md`（
 
 ## Hard rules（不可违反）
 
-1. **NEVER** 跳过 Phase 0.0 执行模式输入确认（用 `request_user_input`）—— 这是**整个 ultra-plan 第一个动作**，必须在任何探测、调研、写作之前完成。禁止与 Phase 0.2 合并、禁止延后到 Phase 4。豁免唯一条件见 0.0。
+1. **NEVER** 跳过 Phase 0.0 执行模式输入确认。Codex Plan Mode 下用 `request_user_input` 作为**第一个用户交互动作**；Default Mode / 工具不可用时，不要调用 `request_user_input`，改用普通消息让用户切到 Plan Mode 或直接给出执行模式答案。禁止与 Phase 0.2 合并、禁止延后到 Phase 4。豁免唯一条件见 0.0。
 2. **NEVER** 在 Phase 1 派 subagent 写代码（subagent 只能调研、读、报告）
 3. **NEVER** 在 Phase 5 派多个并行 subagent 写**同一个模块**（会冲突）
 4. **NEVER** 自己造 CTO / PM / Marketing 这种"角色化"subagent —— 用视角 prompt 注入，不要预设人设
@@ -38,15 +38,18 @@ ultra-plan 把需求**拆成一组结构化 md**：1 个 `00_总体规划.md`（
 6. **ALWAYS** 在 subagent prompt 里列绝对路径并要求复述（≤150 字回执）
 7. **ALWAYS** Phase 4 按 Phase 0.0 执行模式答案直接流转 —— **不再二次弹窗确认**。Phase 4 的职责退化为「列文档清单 + 按 0.0 答案分支」
 8. **ALWAYS** 主 agent 串行写 `00_总体规划.md`，不能派 subagent 写它（要保证全局术语一致）
-9. **ALWAYS** Phase 0 之前先读项目级配置文件（见 [references/项目适配指南.md](references/项目适配指南.md)）
+9. **ALWAYS** 在 Phase 0.0 执行模式确认之后、Phase 0.2 范围澄清之前执行 Phase 0.1 项目级配置读取（见 [references/项目适配指南.md](references/项目适配指南.md)）
 
 ## Workflow
 
 ### Phase 0: 启动三件套（必须按 0.0 → 0.1 → 0.2 顺序）
 
-#### 0.0 执行模式输入确认（无条件必弹，第一动作）
+#### 0.0 执行模式输入确认（第一用户交互动作）
 
-**收到大型需求后，主 agent 的第一个动作就是这个 `request_user_input`**，禁止与 0.2 合并、禁止延后到 Phase 4。
+收到大型需求后，主 agent 的第一个用户交互动作就是确认执行模式，禁止与 0.2 合并、禁止延后到 Phase 4。
+
+- **Codex Plan Mode**：用 `request_user_input` 询问下表问题。
+- **Codex Default Mode / `request_user_input` 不可用**：不要调用该工具。用普通消息让用户切到 Plan Mode，或直接让用户回复 A/B/C 执行模式；拿到答案后再继续 Phase 0.1。
 
 | Header | Question | Options |
 |---|---|---|
@@ -165,7 +168,7 @@ ultra-plan 把需求**拆成一组结构化 md**：1 个 `00_总体规划.md`（
 
 ### Phase 5: 执行（可选）
 
-仅当 Phase 4 选 (B) 或用户初始 prompt 明说"直接执行"时进入。
+仅当 Phase 0.0 选 (B) 或用户初始 prompt 明说"直接执行"时进入。
 
 **复用 `superpowers:subagent-driven-development`**，但 prompt 模板按 Phase 0.1 抽取的项目约定调整（见 [references/subagent-prompt模板.md](references/subagent-prompt模板.md) §4）。
 
@@ -173,7 +176,7 @@ ultra-plan 把需求**拆成一组结构化 md**：1 个 `00_总体规划.md`（
 - 严格按 00_总体规划.md 的波次图，不跳波次
 - 每个模块的执行 subagent 必须先复述必读清单（≤150 字）
 - 主 agent 自己**不**实现代码，只派发 + 验收 + 推进波次
-- 长任务建议**用户开新 session 执行**（Phase 4 推荐选 A），主 session 上下文有限
+- 长任务建议**用户开新 session 执行**（Phase 0.0 推荐选 A），主 session 上下文有限
 
 ## Common mistakes（要避免的红旗）
 
