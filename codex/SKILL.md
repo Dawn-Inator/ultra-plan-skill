@@ -30,19 +30,34 @@ ultra-plan 把需求**拆成一组结构化 md**：1 个 `00_总体规划.md`（
 
 ## Hard rules（不可违反）
 
-1. **NEVER** 跳过 Phase 0 输入确认 —— feature 命名、输出位置、执行模式必须由用户敲定；Codex Plan Mode 用 `request_user_input`
+1. **NEVER** 跳过 Phase 0.0 执行模式输入确认（用 `request_user_input`）—— 这是**整个 ultra-plan 第一个动作**，必须在任何探测、调研、写作之前完成。禁止与 Phase 0.2 合并、禁止延后到 Phase 4。豁免唯一条件见 0.0。
 2. **NEVER** 在 Phase 1 派 subagent 写代码（subagent 只能调研、读、报告）
 3. **NEVER** 在 Phase 5 派多个并行 subagent 写**同一个模块**（会冲突）
 4. **NEVER** 自己造 CTO / PM / Marketing 这种"角色化"subagent —— 用视角 prompt 注入，不要预设人设
 5. **NEVER** 在 skill 自身或生成的 md 里写死项目特定约定 —— 项目约定必须从项目级配置文件抽取
 6. **ALWAYS** 在 subagent prompt 里列绝对路径并要求复述（≤150 字回执）
-7. **ALWAYS** 在 Phase 3 写完所有 md 后弹 Phase 4 决策窗，**除非**用户初始 prompt 里明说"直接执行 / 立即执行 / auto execute / 自动跑"
+7. **ALWAYS** Phase 4 按 Phase 0.0 执行模式答案直接流转 —— **不再二次弹窗确认**。Phase 4 的职责退化为「列文档清单 + 按 0.0 答案分支」
 8. **ALWAYS** 主 agent 串行写 `00_总体规划.md`，不能派 subagent 写它（要保证全局术语一致）
 9. **ALWAYS** Phase 0 之前先读项目级配置文件（见 [references/项目适配指南.md](references/项目适配指南.md)）
 
 ## Workflow
 
-### Phase 0: 项目探测 + 范围澄清
+### Phase 0: 启动三件套（必须按 0.0 → 0.1 → 0.2 顺序）
+
+#### 0.0 执行模式输入确认（无条件必弹，第一动作）
+
+**收到大型需求后，主 agent 的第一个动作就是这个 `request_user_input`**，禁止与 0.2 合并、禁止延后到 Phase 4。
+
+| Header | Question | Options |
+|---|---|---|
+| 执行模式 | 写完所有 md 后怎么办？| (A) 推荐：停下，开新 Codex 窗口让它读 `00_总体规划.md` 执行（避免主 session 上下文爆）(B) 直接接着派 subagent 跑 (C) 写完先停，我自己看了再决定 |
+
+**唯一豁免**：用户初始 prompt 里**逐字明说**了执行态度（"直接执行" / "立即执行" / "auto execute" / "自动跑" / "写完新窗口跑" / "写完停"）。豁免时主 agent 必须在文字回复中**复述用户原话**作为凭据。
+
+**禁止**：
+- 禁止把这一确认与 0.2 合并问
+- 禁止用"feature 名/输出位置已知就跳过整个 Phase 0"为理由省略
+- 禁止延后到 Phase 4 才问
 
 #### 0.1 项目探测（主 agent 必做）
 
@@ -58,18 +73,17 @@ ultra-plan 把需求**拆成一组结构化 md**：1 个 `00_总体规划.md`（
 
 如果项目没有任何配置文件 → 跳过项目特定红线段，只用通用模板。
 
-#### 0.2 范围澄清弹窗（必做）
+#### 0.2 范围澄清确认（必做，3 题）
 
-收到大型需求后立即用 `request_user_input` 问 4 件事：
+立即用 `request_user_input` 问 3 件事（**已不含执行模式 —— 那个在 0.0 已经定了**）：
 
 | Header | Question | Options |
 |---|---|---|
 | feature 命名 | 这次需求的 feature 名是？（决定目录名）| 主 agent 提议 2-3 个候选；Codex 客户端会自动提供 Other |
 | 输出位置 | 文档放在哪里？| (A) `<project_root>/.todolist/<feature>-v<N>/`（推荐，gitignore 友好）(B) `docs/plans/<feature>-v<N>/` (C) Other 让用户敲 |
-| 执行模式 | 写完文档后怎么办？| (A) 停下，开新 Codex 窗口执行（推荐）(B) 直接执行 (C) 写完先停 |
 | 调研深度 | Phase 1 派几个调研 subagent？| (A) 你自己判断（推荐）(B) 标准 5-8 个 (C) 深度 10-15 个 |
 
-**跳过 Phase 0 弹窗的唯一情况**：用户初始 prompt 里**已经**明说了 feature 名 + 输出位置 + 执行模式 + 深度。任何一项缺失都要问。
+**跳过 0.2 的唯一情况**：用户初始 prompt 里逐字明说了 feature 名 + 输出位置 + 深度。任何一项缺失都要弹。
 
 ### Phase 1: 调研（并行 5-15 subagent）
 
@@ -135,27 +149,19 @@ ultra-plan 把需求**拆成一组结构化 md**：1 个 `00_总体规划.md`（
 
 抽取要点见 [references/项目适配指南.md](references/项目适配指南.md)。
 
-### Phase 4: 执行决策弹窗
+### Phase 4: 按 Phase 0.0 答案分支（不再二次弹窗）
 
 写完所有 md 后，主 agent **必须**：
 
 1. 跑 `git status` 自检（不应有意外文件修改，只应有目标输出目录下的新文件）
 2. 输出文档清单：列出生成的所有 md 路径
-3. 用 `request_user_input` 提问：
+3. **按 Phase 0.0 的答案直接流转，禁止再用 `request_user_input` 问执行模式**：
 
-```
-你的 ultra-plan 已生成在 <output_dir>/，共 <X> 个 md：
-- 00_总体规划.md
-- 01_<模块>.md
-- ...
+   - 0.0 = (A) 新窗口 → 输出：「✓ 准备好了。请开新 Codex 窗口，第一句喂它：『读 `<output_dir>/00_总体规划.md` 后按计划执行』」然后停下
+   - 0.0 = (B) 直接执行 → 立即进入 Phase 5
+   - 0.0 = (C) 写完先停 → 输出文档清单，停下
 
-要直接执行吗？
-(A) 推荐：开新 Codex 窗口让它读 00_总体规划.md
-(B) 直接执行（按 00_总体规划.md 派 subagent 跑）
-(C) 先停，我自己看看 md 再说
-```
-
-**跳过 Phase 4 弹窗的唯一情况**：用户初始 prompt 里明说"直接执行"且 Phase 0 答案是 (B)。
+**禁止在 Phase 4 重新发 `request_user_input` 问执行模式** —— 0.0 已经定了，再问就是流程冗余。
 
 ### Phase 5: 执行（可选）
 
@@ -178,7 +184,8 @@ ultra-plan 把需求**拆成一组结构化 md**：1 个 `00_总体规划.md`（
 | "subagent 调研报告太短，让它写详细点（>500 字）" | NO. 主 session 上下文有限，多 agent 报告会爆。逼它精炼 |
 | "00_总体规划.md 我也派 subagent 写更快" | NO. 必须主 agent 串行写。这是全局术语 source of truth |
 | "高耦合模块也派并行 subagent 加速" | NO. 高耦合 = 共享 schema / 共用术语 / 互调 API，并行写必然术语不一致 |
-| "Phase 4 弹窗太啰嗦，自动选直接执行" | NO. 长任务在主 session 跑会上下文爆。用户应该开新窗口（选 A）|
+| "Phase 4 弹窗太啰嗦，自动选直接执行" | NO. 执行模式应该在 Phase 0.0 就由用户敲定。Phase 4 不再问，按 0.0 答案分支 |
+| "feature 名 / 输出位置 / 深度都问出来了，把 0.0 执行模式合并到 0.2 一起问" | NO. 0.0 必须**单独**弹窗、且是**第一个**弹窗。和 0.2 三题合并 = 必然被主 agent 整体跳过 |
 | "用户没指定 feature 名，我自己起一个" | NO. 命名权在用户。Phase 0 必问 |
 | "派 CTO / PM / Marketing 角色 subagent 看起来更专业" | NO. 角色化 = 限制思维。用具体视角 prompt（财务 / 合规 / 风控 / 幂等等）|
 | "项目没 AGENTS.md / CLAUDE.md，我就用其他项目的约定" | NO. 项目无明确配置 = 不注入项目红线段，纯通用模板。不要从训练数据 / 其他项目带入约定 |
