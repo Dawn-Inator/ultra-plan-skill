@@ -18,7 +18,7 @@ client.
 - Architecture work spanning 5+ modules
 - Cross-stack features (frontend + backend + AI service)
 - Anything that needs more than one AI session to execute
-- User says "ultra-plan", "/ultra-plan", "整套", "全套架构"
+- User says "ultra-plan", "/ultra-plan", "whole architecture", "entire system"
 
 ## When NOT to use
 
