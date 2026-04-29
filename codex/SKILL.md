@@ -39,6 +39,7 @@ ultra-plan 把需求**拆成一组结构化 md**：1 个 `00_总体规划.md`（
 7. **ALWAYS** Phase 4 按 Phase 0.0 执行模式答案直接流转 —— **不再二次弹窗确认**。Phase 4 的职责退化为「列文档清单 + 按 0.0 答案分支」
 8. **ALWAYS** 主 agent 串行写 `00_总体规划.md`，不能派 subagent 写它（要保证全局术语一致）
 9. **ALWAYS** 在 Phase 0.0 执行模式确认之后、Phase 0.2 范围澄清之前执行 Phase 0.1 项目级配置读取（见 [references/项目适配指南.md](references/项目适配指南.md)）
+10. **ALWAYS** 模块文档（`00_总体规划.md` + 各模块 md）写得**越详细越好**，无字数上限。目标是另起 AI session 的执行者**仅凭模块 md** 即可零参考实现，不需要回头问主 agent 或重读源码。具体到 file:line / 完整 URL / 全部请求响应字段 / 错误码 / 测试场景，**禁止**虚词（"完善"、"妥善处理"、"按需"）
 
 ## Workflow
 
@@ -97,7 +98,7 @@ ultra-plan 把需求**拆成一组结构化 md**：1 个 `00_总体规划.md`（
 - 直播需求 → 音视频协议 / CDN / 带宽成本 / 互动延迟 / 鉴权 / 数据流 / 客户端兼容 / 测试
 
 **派发要求**：
-- 每个 subagent prompt **必须 ≤ 500 字**输出限制（防止主 session 上下文爆）
+- 每个 subagent **不设字数上限**，要求按需充分展开（覆盖路径 / 函数 / 表 / 端点 / 风险点），目的是把素材完整喂给主 agent 写模块 md
 - prompt 模板见 [references/subagent-prompt模板.md](references/subagent-prompt模板.md) §2
 - subagent 只调研、不写代码、不改文件
 - subagent 数量根据 Phase 0 答案：标准 5-8 / 深度 10-15 / 自动判断按需求复杂度
@@ -122,6 +123,8 @@ ultra-plan 把需求**拆成一组结构化 md**：1 个 `00_总体规划.md`（
 - 跨模块的契约 md（如有，命名 `99_跨模块契约.md`）
 
 #### 3.2 低耦合模块可派 subagent **并行**写
+
+> ⚠️ 详细度优先（见 Hard rule #10）：写文档 subagent 必须按 §3.3 模板把每节展开到具体（绝对路径 / 完整 URL / 全字段 / 完整测试用例）。**禁止**写 "TBD" / "类似 Task N" / "处理边界" 等虚词。
 
 **只对低耦合模块**用 `spawn_agent` 派 `worker` subagent 并行写：
 - 每个 subagent 负责 1-2 个模块 md
@@ -184,7 +187,8 @@ ultra-plan 把需求**拆成一组结构化 md**：1 个 `00_总体规划.md`（
 |---|---|
 | "需求看着不大，跳过 Phase 0 直接写" | NO. 用户口里"小需求"经常拆出 8 个模块。先弹 Phase 0 |
 | "Phase 1 派 3 个 subagent 就够了" | NO. < 5 个就用普通 Plan Mode，不要用 ultra-plan |
-| "subagent 调研报告太短，让它写详细点（>500 字）" | NO. 主 session 上下文有限，多 agent 报告会爆。逼它精炼 |
+| "subagent 调研报告精简点更省 token" | NO. 已废除字数限制——调研素材稀薄会让模块 md 缺 file:line 引用，执行 subagent 必然回头探索。详细度优先（Hard rule #10）|
+| "模块 md 写概要就行，详细的等执行时再补" | NO. 模块 md 是"零参考实现"的唯一权威。每节必须展开到具体（绝对路径 / 完整 URL / 全字段 / 完整测试用例）|
 | "00_总体规划.md 我也派 subagent 写更快" | NO. 必须主 agent 串行写。这是全局术语 source of truth |
 | "高耦合模块也派并行 subagent 加速" | NO. 高耦合 = 共享 schema / 共用术语 / 互调 API，并行写必然术语不一致 |
 | "Phase 4 弹窗太啰嗦，自动选直接执行" | NO. 执行模式应该在 Phase 0.0 就由用户敲定。Phase 4 不再问，按 0.0 答案分支 |
